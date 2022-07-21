@@ -5,6 +5,9 @@ import re
 from typing import List
 
 
+PII_FIELDS = ["name", "phone", "email", "ssn", "password"]
+
+
 def filter_datum(
         fields: List[str],
         redaction: str, message: str, separator: str) -> str:
@@ -32,3 +35,14 @@ class RedactingFormatter(logging.Formatter):
         record.msg = filter_datum(self.fields, self.REDACTION,
                                   record.getMessage(), self.SEPARATOR)
         return super(RedactingFormatter, self).format(record)
+
+
+def get_logger() -> logging.Logger:
+    """Returns a log object"""
+    log = logging.getLogger("user_data")
+    log.setLevel(logging.INFO)
+    log.propagate = False
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(RedactingFormatter(list(PII_FIELDS)))
+    log.addHandler(stream_handler)
+    return log
