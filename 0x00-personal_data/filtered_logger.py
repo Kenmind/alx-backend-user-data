@@ -3,6 +3,8 @@
 import logging
 import re
 from typing import List
+from os import environ
+import mysql.connector as mc
 
 
 PII_FIELDS = ["name", "phone", "email", "ssn", "password"]
@@ -46,3 +48,32 @@ def get_logger() -> logging.Logger:
     stream_handler.setFormatter(RedactingFormatter(list(PII_FIELDS)))
     log.addHandler(stream_handler)
     return log
+
+
+def get_db() -> mc.connection.MySQLConnection:
+    """Returns a MySQL Connector"""
+    uname = environ.get("PERSONAL_DATA_DB_USERNAME", "root")
+    pwd = environ.get("PERSONAL_DATA_DB_PASSWORD", "")
+    h = environ.get("PERSONAL_DATA_DB_HOST", "localhost")
+    db = environ.get("PERSONAL_DATA_DB_NAME")
+    return mc.connection.MySQLConnection(user=uname, password=pwd,
+                                         host=h, database=db)
+
+
+def main():
+    """ Obtains a database connection using get_db and retrieves all rows
+    in the users table then display each row under a filtered format """
+    db = get_db()
+    cur_db = db.cursor()
+    cur_db.execute("SELECT * FROM users;")
+    field_names = [i[0] for i in cur_db.description]
+    log = get_logger()
+    for r in cur_db:
+        str_r = "".join(f"{f}={str(l)}; " for l, f in zip(r, field_names))
+        log.info(str_r.strip())
+    cur_db.close()
+    db.close()
+
+
+if __name__ == "__main__":
+    main()
