@@ -7,7 +7,7 @@ from os import environ
 import mysql.connector as mc
 
 
-PII_FIELDS = ["name", "phone", "email", "ssn", "password"]
+PII_FIELDS = List["name", "phone", "email", "ssn", "password"]
 
 
 def filter_datum(
