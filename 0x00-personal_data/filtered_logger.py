@@ -7,7 +7,7 @@ from os import environ
 import mysql.connector as mc
 
 
-PII_FIELDS = List["name", "phone", "email", "ssn", "password"]
+PII_FIELDS = ["name", "phone", "email", "ssn", "password"]
 
 
 def filter_datum(
@@ -45,7 +45,7 @@ def get_logger() -> logging.Logger:
     log.setLevel(logging.INFO)
     log.propagate = False
     stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(RedactingFormatter(list(PII_FIELDS)))
+    stream_handler.setFormatter(RedactingFormatter(List(PII_FIELDS)))
     log.addHandler(stream_handler)
     return log
 
